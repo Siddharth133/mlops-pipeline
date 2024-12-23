@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KNN Classification Form</title>
+    <style>
+        /* Add your existing CSS here */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result-container {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>KNN Classification</h2>
+        <form id="predictForm">
+            <div class="form-group">
+                <label for="battery_power">Battery Power</label>
+                <input type="number" id="battery_power" name="battery_power" required>
+            </div>
+            <div class="form-group">
+                <label for="blue">Bluetooth (0/1)</label>
+                <input type="number" id="blue" name="blue" required>
+            </div>
+            <div class="form-group">
+                <label for="clock_speed">Clock Speed (GHz)</label>
+                <input type="text" id="clock_speed" name="clock_speed" required>
+            </div>
+            <div class="form-group">
+                <label for="dual_sim">Dual SIM (0/1)</label>
+                <input type="number" id="dual_sim" name="dual_sim" required>
+            </div>
+            <div class="form-group">
+                <label for="fc">Front Camera MP</label>
+                <input type="number" id="fc" name="fc" required>
+            </div>
+            <div class="form-group">
+                <label for="four_g">4G Support (0/1)</label>
+                <input type="number" id="four_g" name="four_g" required>
+            </div>
+            <div class="form-group">
+                <label for="int_memory">Internal Memory (GB)</label>
+                <input type="number" id="int_memory" name="int_memory" required>
+            </div>
+            <div class="form-group">
+                <label for="m_dep">Mobile Depth (cm)</label>
+                <input type="text" id="m_dep" name="m_dep" required>
+            </div>
+            <div class="form-group">
+                <label for="mobile_wt">Mobile Weight (g)</label>
+                <input type="number" id="mobile_wt" name="mobile_wt" required>
+            </div>
+            <div class="form-group">
+                <label for="n_cores">Number of Cores</label>
+                <input type="number" id="n_cores" name="n_cores" required>
+            </div>
+            <label for="pc">Primary Camera (pc)</label>
+            <input type="number" id="pc" name="pc" placeholder="Enter primary camera value" required>
+
+            <label for="px_height">Pixel Height (px_height)</label>
+            <input type="number" id="px_height" name="px_height" placeholder="Enter pixel height" required>
+
+            <label for="px_width">Pixel Width (px_width)</label>
+            <input type="number" id="px_width" name="px_width" placeholder="Enter pixel width" required>
+
+            <label for="ram">RAM (MB)</label>
+            <input type="number" id="ram" name="ram" placeholder="Enter RAM value" required>
+
+            <label for="sc_h">Screen Height (sc_h)</label>
+            <input type="number" id="sc_h" name="sc_h" placeholder="Enter screen height" required>
+
+            <label for="sc_w">Screen Width (sc_w)</label>
+            <input type="number" id="sc_w" name="sc_w" placeholder="Enter screen width" required>
+
+            <label for="talk_time">Talk Time (Hours)</label>
+            <input type="number" id="talk_time" name="talk_time" placeholder="Enter talk time" required>
+
+            <label for="three_g">3G Enabled (three_g)</label>
+            <input type="number" id="three_g" name="three_g" placeholder="1 for Yes, 0 for No" required>
+
+            <label for="touch_screen">Touch Screen (touch_screen)</label>
+            <input type="number" id="touch_screen" name="touch_screen" placeholder="1 for Yes, 0 for No" required>
+
+            <label for="wifi">WiFi Enabled (wifi)</label>
+            <input type="number" id="wifi" name="wifi" placeholder="1 for Yes, 0 for No" required>
+            
+            <button type="submit">Predict</button>
+        </form>
+        <div class="result-container" id="resultContainer" style="display:block;">
+            <h3>Prediction Result</h3>
+            <p id="predictionResult"></p>
+        </div>
+    </div>
+
+    <script>
+        document.querySelector('#predictForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            let formData = new FormData(this);
+            let data = {};
+            formData.forEach((value, key) => { data[key] = value; });
+            
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                document.getElementById('predictionResult').textContent = data.prediction;
+                document.getElementById('resultContainer').style.display = 'block';
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>
