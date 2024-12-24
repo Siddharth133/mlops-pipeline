@@ -35,7 +35,6 @@ services:
       - db
     networks:
       - mlops-network
-    command: ["ls", "-l", "/airflow"]
 
   db:
     image: postgres:13
