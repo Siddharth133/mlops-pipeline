@@ -1,39 +1,41 @@
+version: '3.8'
+
 services:
   app:
-    build:
-      context: ./ml_pipeline
-      dockerfile: Dockerfile
+    image: ml_image:latest
     ports:
       - "5000:5000"
     depends_on:  
       - backend
+      - mlflow
     networks:
       - mlops-network
 
   backend:
-    build:
-      context: ./backend/demo
-      dockerfile: Dockerfile
+    image: backend_image:latest
     ports:
       - "8080:8080"
     networks:
       - mlops-network
 
   airflow:
-    image: apache/airflow:2.7.0
-    container_name: airflow
+    image: airflow_image:latest
     ports:
-      - "8081:8080"
-    volumes:
-      - ./dags:/opt/airflow/dags
-      - ./logs:/opt/airflow/logs
-      - ./plugins:/opt/airflow/plugins
+      - "8081:8081"
     environment:
       AIRFLOW__CORE__EXECUTOR: "LocalExecutor"
       AIRFLOW__CORE__FERNET_KEY: "fernet_key_here"
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://airflow:airflow@db:5432/airflow"
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+    depends_on:
+      - db
     networks:
       - mlops-network
+    command: ["ls", "-l", "/airflow"]
 
   db:
     image: postgres:13
@@ -46,6 +48,19 @@ services:
       POSTGRES_DB: airflow
     networks:
       - mlops-network
+
+  mlflow:
+    image: bitnami/mlflow:latest
+    container_name: mlflow
+    environment:
+      MLFLOW_TRACKING_URI: "http://0.0.0.0:5001"
+    ports:
+      - "5010:5000"
+    networks:
+      - mlops-network
+    depends_on:
+      - db
+
 
 networks:
   mlops-network:

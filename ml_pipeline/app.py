@@ -36,7 +36,7 @@ def predict():
     print("Received data:", data)
     
     
-    model = joblib.load(r"S:\Mlops\ml_pipeline\model\knn_model1.pkl")
+    model = joblib.load(r".\model\knn_model1.pkl")
     
     
     try:
