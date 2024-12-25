@@ -10,7 +10,7 @@ ENV AIRFLOW_HOME=/opt/airflow
 
 # Initialize the Airflow DB
 RUN airflow db init
-
+EXPOSE 8081
 # Set the default entrypoint for Airflow
 ENTRYPOINT ["airflow"]
 

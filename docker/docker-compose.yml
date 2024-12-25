@@ -63,7 +63,6 @@ services:
     build:
       context: ../mlflow
       dockerfile: Dockerfile
-    # command: /opt/bitnami/python/bin/mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root /mlflow-artifacts
     environment:
       MLFLOW_TRACKING_URI: "http://docker-mlflow-1:5001"
     ports:

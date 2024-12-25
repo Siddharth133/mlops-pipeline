@@ -28,7 +28,7 @@ import numpy as np
 app = Flask(__name__)
 CORS(app)
 
-mlflow.set_tracking_uri("http://127.0.0.1:5010")
+mlflow.set_tracking_uri("http://docker-mlflow-1:5001")
 
 @app.route("/predict", methods=['POST'])
 def predict():
@@ -36,7 +36,7 @@ def predict():
     print("Received data:", data)
     
     
-    model = joblib.load(r".\model\knn_model1.pkl")
+    model = joblib.load("./model/knn_model1.pkl")
     
     
     try:
@@ -64,4 +64,4 @@ def predict():
     return jsonify(result)
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5011)
