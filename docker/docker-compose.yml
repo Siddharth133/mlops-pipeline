@@ -2,9 +2,14 @@ version: '3.8'
 
 services:
   app:
-    image: ml_image:latest
+    # image: ml_image:latest
+    build:
+      context: ../ml_pipeline
+      dockerfile: Dockerfile
     ports:
-      - "5000:5000"
+      - "5011:5011"
+    environment:
+      - MLFLOW_TRACKING_URI=http://docker-mlflow-1:5001 
     depends_on:  
       - backend
       - mlflow
@@ -12,19 +17,25 @@ services:
       - mlops-network
 
   backend:
-    image: backend_image:latest
+    # image: backend_image:latest
+    build:
+      context: ../backend/demo
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
     networks:
       - mlops-network
 
   airflow:
-    image: airflow_image:latest
+    # image: airflow_image:latest
+    build:
+      context: ../airflow
+      dockerfile: Dockerfile
     ports:
       - "8081:8081"
     environment:
       AIRFLOW__CORE__EXECUTOR: "LocalExecutor"
-      AIRFLOW__CORE__FERNET_KEY: "fernet_key_here"
+      AIRFLOW__CORE__FERNET_KEY: "z3T8GKlr2ldSvyfoweOXCiiyOrB4h_-WF_9CDM06yoY="
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
       AIRFLOW__CORE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://airflow:airflow@db:5432/airflow"
     volumes:
@@ -38,7 +49,6 @@ services:
 
   db:
     image: postgres:13
-    container_name: postgres
     ports:
       - "5433:5432"
     environment:
@@ -49,18 +59,27 @@ services:
       - mlops-network
 
   mlflow:
-    image: bitnami/mlflow:latest
-    container_name: mlflow
+    # image: bitnami/mlflow:latest
+    build:
+      context: ../mlflow
+      dockerfile: Dockerfile
+    # command: /opt/bitnami/python/bin/mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root /mlflow-artifacts
     environment:
-      MLFLOW_TRACKING_URI: "http://0.0.0.0:5001"
+      MLFLOW_TRACKING_URI: "http://docker-mlflow-1:5001"
     ports:
-      - "5010:5000"
+      - "5001:5000"
+    volumes:
+      - mlflow-data:/mlflow-artifacts
     networks:
       - mlops-network
     depends_on:
       - db
 
-
 networks:
   mlops-network:
     driver: bridge
+
+
+volumes:
+  mlflow-data:
+    driver: local
